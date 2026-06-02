@@ -1,5 +1,5 @@
   "use client"
-  import {useState, useRef} from "react"
+  import {useState, useRef, Suspense} from "react"
   import { useSearchParams, useRouter } from "next/navigation"
   
 const UploadIcon = () => (
@@ -33,7 +33,7 @@ const ChatIcon = () => (
   </svg>
 )
 
-  export default function Interview()
+  export function Interview()
   {
     const searchparams = useSearchParams()
     const router = useRouter()
@@ -293,4 +293,10 @@ const ChatIcon = () => (
     </div>
   )
 }
-  
+export default function Page() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <Interview />
+    </Suspense>
+  )
+}
