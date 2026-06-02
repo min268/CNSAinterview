@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { NextRequest, NextResponse } from "next/server"
 
-const genimi = new GoogleGenerativeAI(process.env.GENIMIKEY!)
+const genimi = new GoogleGenerativeAI(process.env.GEMINIKEY!)
 
 async function generateWithRetry(model: any, prompt: any, retries = 5) {
   for (let i = 0; i < retries; i++) {
