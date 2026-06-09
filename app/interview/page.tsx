@@ -47,6 +47,8 @@ const ChatIcon = () => (
     const [loading, setLoading] = useState(false) //로딩
     const fileinput = useRef<HTMLInputElement | null>(null)
     const [error, setError] = useState<string | null>(null)
+    const mimeTypeRef = useRef<string>("audio/webm")
+    const [tailError, setTailError] = useState<string | null>(null)
 
     const modeLabel = mode === "interview" ? "생기부 면접" : "탐구보고서 검토"
     const modeBadge = mode === "interview" ? "학생부 기반" : "보고서 기반"
@@ -73,7 +75,7 @@ const ChatIcon = () => (
         {
             const response = await fetch("/api/generate", {method:"POST", body:formData})
             const data = await response.json()
-             const separate = data.question.split("\n").filter((line:string) => line.trim() != "").map((text : string, id : number) => ({text, tail : null, id:`${id+1}`}))
+            const separate = data.question.split("\n").filter((line:string) => line.trim() != "").map((text : string, id : number) => ({text, tail : null, id:`${id+1}`}))
             setQuestion(separate)
             setScreen("question")
         } 
@@ -92,21 +94,25 @@ const ChatIcon = () => (
 
     async function startRecording() //녹음 시작 함수
     {
+      setTailError(null)
         const stream = await navigator.mediaDevices.getUserMedia({audio:true})
-        const recorder = new MediaRecorder(stream)
+        const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus": "audio/mp4"
+        mimeTypeRef.current = mimeType
+        const recorder = new MediaRecorder(stream, { mimeType })
         chunkRef.current = []
         recorder.ondataavailable = (ev) => {
             chunkRef.current.push(ev.data)
         }
-        recorder.start()
+        recorder.start(100)
         recorderRef.current = recorder
     }
 
     async function stopRecording(q : string, index : number) //녹음 끝 함수
     {
-        recorderRef.current!.stop()
+        if (!recorderRef.current) return 
+        
         recorderRef.current!.onstop = async () => {
-            const blob = new Blob(chunkRef.current, {type : "audio/webm"}) //합치기
+            const blob = new Blob(chunkRef.current, {type : mimeTypeRef.current}) //합치기
             const reader = new FileReader()
             reader.readAsDataURL(blob)
             reader.onloadend = async () => {
@@ -115,12 +121,22 @@ const ChatIcon = () => (
                 formData.append("mode", "tailquestion")
                 formData.append("audio", base64)
                 formData.append("question",q)
+                formData.append("mimeType", mimeTypeRef.current)
+                
                 const response = await fetch("/api/generate", {method : "POST", body : formData}) 
                 const data = await response.json()
+                const errormessage = ["답변이 없습니다.", "음성 파일이 도착하지 않았습니다.", "소리가 작습니다."]
+                const isError = errormessage.some(msg => data.tail?.includes(msg))
+                if (isError)
+                {
+                  setTailError(data.tail)
+                  return
+                }
+
                 setQuestion(prev => prev.map((q, i) => i === index ? {...q, text:data.tail, tail : null}:q))
             }
         }
-
+        recorderRef.current!.stop()
     }
 
     if (screen === "upload") {
@@ -283,10 +299,12 @@ const ChatIcon = () => (
             </div>
           ))}
         </div>
-
-        <div className="q-foot">
+          {tailError && (
+           <p style={{color: "red", marginTop: "12px"}}>{tailError}</p>
+           )}
+          <div style={{marginTop: "24px", display: "flex", justifyContent: "center"}}>
           <button className="btn btn-primary" onClick={() => router.push("/")}>
-            처음으로
+           처음으로
           </button>
         </div>
       </main>

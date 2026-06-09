@@ -29,6 +29,7 @@ export async function POST(request:NextRequest) {
   {
     const audio = formData.get("audio") as string
     const question = formData.get("question") as string
+    const mimeType = formData.get("mimeType") as string || "audio/webm"
     console.log("audio 길이:", audio?.length)  // audio가 오는지 확인
   console.log("question:", question)
 
@@ -37,7 +38,7 @@ export async function POST(request:NextRequest) {
       {
         inlineData :
         {
-          mimeType : "audio/webm",
+           mimeType: mimeType,
           data : audio
         }
        
@@ -122,7 +123,9 @@ export async function POST(request:NextRequest) {
           # 출력 형식
 
           설명, 분석 내용, 부연 설명 일절 없이 꼬리질문 하나만 출력합니다.
-          음성이 없거나 짧으면 "답변이 없습니다"라고 답변합니다.
+          음성이 없으면 "답변이 없습니다."라고 답변합니다.
+          음성 파일이 없다면 "음성 파일이 도착하지 않았습니다."라고 답변합니다.
+          음성 파일의 음성이 작다면 "소리가 작습니다."라고 답변합니다.
           `
         }
     ]
@@ -206,8 +209,7 @@ export async function POST(request:NextRequest) {
     {
       inlineData : 
       {
-        
-        mimeType : "application/pdf",
+       mimeType: "application/pdf",
         data : base64
       }
     },
