@@ -3,10 +3,20 @@ import { NextRequest, NextResponse } from "next/server"
 
 const genimi = new GoogleGenerativeAI(process.env.GEMINIKEY!)
 
-async function generate(model: any, prompt: any) 
-{
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+async function generateWithRetry(model: any, prompt: any, retries = 4) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const result = await model.generateContent(prompt)
+      return result.response.text()
+    } catch (event: any) {
+      if (event.status === 503 && i < retries - 1) {
+        console.log(`${i + 1}번째 재시도 중...`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        continue
+      }
+      throw event
+    }
+  }
 }
 
 export async function POST(request:NextRequest) {
@@ -119,7 +129,7 @@ export async function POST(request:NextRequest) {
           `
         }
     ]
-    const response = await generate(model, prompt)
+    const response = await generateWithRetry(model, prompt)
   return NextResponse.json({tail : response})
   }
 
@@ -207,7 +217,7 @@ export async function POST(request:NextRequest) {
         text : promptText
     }
   ]
-  const response = await generate(model, prompt)
+  const response = await generateWithRetry(model, prompt)
   return NextResponse.json({question : response})}
   catch (error : any)
   {

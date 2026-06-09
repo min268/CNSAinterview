@@ -149,33 +149,7 @@ const ChatIcon = () => (
     if (screen === "upload") {
     return (
       <div className="shell">
-        <header className="topbar">
-          <div className="topbar-inner">
-            <div className="brand">
-              <div className="brand-mark"><ChatIcon /></div>
-              <div>
-                <div className="brand-name">면접 도우미</div>
-                <div className="brand-sub">AI 면접 질문 생성기</div>
-              </div>
-            </div>
-            <div className="steps">
-              <div className="step done">
-                <div className="step-dot">1</div>
-                <div className="step-label">모드 선택</div>
-              </div>
-              <div className="step-bar" />
-              <div className="step active">
-                <div className="step-dot">2</div>
-                <div className="step-label">자료 업로드</div>
-              </div>
-              <div className="step-bar" />
-              <div className="step">
-                <div className="step-dot">3</div>
-                <div className="step-label">면접 진행</div>
-              </div>
-            </div>
-          </div>
-        </header>
+       
 
         <main className="main fade-in">
           <div className="backrow">
@@ -225,34 +199,7 @@ const ChatIcon = () => (
   // 질문 화면
   return (
     <div className="shell">
-      <header className="topbar">
-        <div className="topbar-inner">
-          <div className="brand">
-            <div className="brand-mark"><ChatIcon /></div>
-            <div>
-              <div className="brand-name">면접 도우미</div>
-              <div className="brand-sub">AI 면접 질문 생성기</div>
-            </div>
-          </div>
-          <div className="steps">
-            <div className="step done">
-              <div className="step-dot">1</div>
-              <div className="step-label">모드 선택</div>
-            </div>
-            <div className="step-bar" />
-            <div className="step done">
-              <div className="step-dot">2</div>
-              <div className="step-label">자료 업로드</div>
-            </div>
-            <div className="step-bar" />
-            <div className="step active">
-              <div className="step-dot">3</div>
-              <div className="step-label">면접 진행</div>
-            </div>
-          </div>
-        </div>
-      </header>
-
+     
       <main className="main fade-in">
         <div className="backrow">
           <button className="btn btn-ghost" onClick={() => setScreen("upload")}>
