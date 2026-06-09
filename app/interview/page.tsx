@@ -74,14 +74,19 @@ const ChatIcon = () => (
         try 
         {
             const response = await fetch("/api/generate", {method:"POST", body:formData})
+            if (!response.ok) 
+            {
+              const errorData = await response.json()
+              throw new Error(errorData.error || `서버 오류: ${response.status}`)
+            }
             const data = await response.json()
             const separate = data.question.split("\n").filter((line:string) => line.trim() != "").map((text : string, id : number) => ({text, tail : null, id:`${id+1}`}))
             setQuestion(separate)
             setScreen("question")
         } 
-        catch (e) 
+        catch (e : any) 
         {
-            setError("질문 생성에 실패 했어요. 다시 시도해주세요.")
+            setError(`질문 생성에 실패 했어요. 다시 시도해주세요. 오류: ${e.message}`)
         }
         finally 
         {
