@@ -94,7 +94,7 @@ const ChatIcon = () => (
         catch (e : any) 
         {
           const is503 = e.message?.includes("503") || e.message?.includes("high demand")
-          setError(is503 ? "AI 서버가 잠시 혼잡해요. 잠깐 후 다시 시도해 주세요." : "질문 생성에 실패했어요. 다시 시도해 주세요.")
+          setError(is503 ? "AI 서버가 잠시 혼잡해요. 잠시후 다시 시도해 주세요." : "질문 생성에 실패했어요. 다시 시도해 주세요.")
         }
         finally 
         {
