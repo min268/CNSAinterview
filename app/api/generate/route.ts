@@ -9,7 +9,7 @@ async function generateWithRetry(model: any, prompt: any, retries = 4) {
       const result = await model.generateContent(prompt)
       return result.response.text()
     } catch (event: any) {
-      if (event.status === 503 && i < retries - 1) {
+      if ((event.status === 503 || event.message?.includes("503")) && i < retries - 1) {
         console.log(`${i + 1}번째 재시도 중...`)
         await new Promise(resolve => setTimeout(resolve, 2000))
         continue
@@ -121,7 +121,9 @@ export async function POST(request:NextRequest) {
 
           # 출력 형식
 
-          설명, 분석 내용, 부연 설명 일절 없이 꼬리질문 하나만 출력합니다.
+          아래 형식으로만 출력합니다.
+          꼬리질문: (꼬리질문 내용)
+          피드백: (답변에서 부족했던 점 한 줄)
           음성이 없으면 "답변이 없습니다."라고 답변합니다.
           음성 파일이 없다면 "음성 파일이 도착하지 않았습니다."라고 답변합니다.
           음성 파일의 음성이 작다면 "소리가 작습니다."라고 답변합니다.

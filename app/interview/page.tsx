@@ -39,7 +39,7 @@ const ChatIcon = () => (
     const router = useRouter()
     const mode = searchparams.get("mode") //모드
     const [isfile, setFile] = useState<File | null>(null) //파일 있나? 없나?
-    const [question, setQuestion] = useState<{text : string, tail : string | null, id : string}[]>([]) //질문
+    const [question, setQuestion] = useState<{text : string, tail : string | null, id : string, feedback : string | null}[]>([]) //질문
     const [screen, setScreen] = useState("upload") //화면 상태
     const [recordingIndex, setRecordingIndex] = useState<number | null>(null) //녹음 중이냐? 아니냐?
     const recorderRef = useRef<MediaRecorder | null>(null)
@@ -85,7 +85,7 @@ const ChatIcon = () => (
               throw new Error(errorData.error || `서버 오류: ${response.status}`)
             }
             const data = await response.json()
-            const separate = data.question.split("\n").filter((line:string) => line.trim() != "").map((text : string, id : number) => ({text, tail : null, id:`${id+1}`}))
+            const separate = data.question.split("\n").filter((line:string) => line.trim() != "").map((text : string, id : number) => ({text, tail : null, id:`${id+1}`, feedback : null}))
             setQuestion(separate)
             setUsedQuestions(prev => [...prev, ...separate.map((q: any) => q.text)])
             setScreen("question")
@@ -138,15 +138,17 @@ const ChatIcon = () => (
                 
                 const response = await fetch("/api/generate", {method : "POST", body : formData}) 
                 const data = await response.json()
+                const tail = data.tail?.match(/꼬리질문:\s*(.+)/)?.[1]?.trim()
+                const feedback = data.tail?.match(/피드백:\s*(.+)/)?.[1]?.trim()
                 const errormessage = ["답변이 없습니다.", "음성 파일이 도착하지 않았습니다.", "소리가 작습니다."]
-                const isError = errormessage.some(msg => data.tail?.includes(msg))
+                const isError = errormessage.some(msg => tail?.includes(msg))
                 if (isError)
                 {
-                  setTailError(data.tail)
+                  setTailError(tail)
                   return
                 }
 
-                setQuestion(prev => prev.map((q, i) => i === index ? {...q, text:data.tail, tail : null}:q))
+                setQuestion(prev => prev.map((q, i) => i === index ? {...q, text:tail, tail : null, feedback: feedback}:q))
             }
         }
         recorderRef.current!.stop()
@@ -233,6 +235,7 @@ const ChatIcon = () => (
                   <span className="q-tag follow">꼬리 질문</span>
                 )}
                 <div className="q-text">{q.text}</div>
+                {q.feedback && (<div className="q-feedback">피드백 : {q.feedback}</div>)}
               </div>
               <div className="q-actions">
                 <button

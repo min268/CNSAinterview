@@ -213,3 +213,11 @@
   .rec-btn.recording + .rec-label { color: var(--rec); }
 
   .q-foot { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .q-feedback {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: #555;
+  background: #f0f4ff;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
