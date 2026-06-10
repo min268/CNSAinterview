@@ -46,9 +46,10 @@ const ChatIcon = () => (
     const chunkRef = useRef<Blob[]>([]) //녹음 부분부분
     const [loading, setLoading] = useState(false) //로딩
     const fileinput = useRef<HTMLInputElement | null>(null)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null) //오류
     const mimeTypeRef = useRef<string>("audio/webm")
-    const [tailError, setTailError] = useState<string | null>(null)
+    const [tailError, setTailError] = useState<string | null>(null) //꼬리 질문 오류
+    const [usedQuestions, setUsedQuestions] = useState<string[]>([]) //이미 쓴 질문들
 
     const modeLabel = mode === "interview" ? "생기부 면접" : "탐구보고서 검토"
     const modeBadge = mode === "interview" ? "학생부 기반" : "보고서 기반"
@@ -71,6 +72,10 @@ const ChatIcon = () => (
         const formData = new FormData()
         formData.append("mode", mode!)
         formData.append("file", isfile)
+        if (usedQuestions.length > 0) 
+        {
+          formData.append("usedQuestions", usedQuestions.join("\n"))
+        }
         try 
         {
             const response = await fetch("/api/generate", {method:"POST", body:formData})
@@ -82,6 +87,7 @@ const ChatIcon = () => (
             const data = await response.json()
             const separate = data.question.split("\n").filter((line:string) => line.trim() != "").map((text : string, id : number) => ({text, tail : null, id:`${id+1}`}))
             setQuestion(separate)
+            setUsedQuestions(prev => [...prev, ...separate.map((q: any) => q.text)])
             setScreen("question")
         } 
         
@@ -213,9 +219,9 @@ const ChatIcon = () => (
             <h1 className="h1">예상 질문 {question.length}개</h1>
             <p className="lede">질문을 읽고 녹음 버튼을 눌러 답해 보세요.</p>
           </div>
-          <span className="progress-pill">
-            {question.filter(q => q.id.includes("-")).length} / {question.length} 답변
-          </span>
+          <button className="btn btn-ghost" onClick={handleGenerate}>
+            <SparkIcon /> 재생성
+          </button>
         </div>
 
         <div className="q-list">

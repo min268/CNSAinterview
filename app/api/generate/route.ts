@@ -30,8 +30,6 @@ export async function POST(request:NextRequest) {
     const audio = formData.get("audio") as string
     const question = formData.get("question") as string
     const mimeType = formData.get("mimeType") as string || "audio/webm"
-    console.log("audio 길이:", audio?.length)  // audio가 오는지 확인
-  console.log("question:", question)
 
     const prompt = 
     [
@@ -110,6 +108,7 @@ export async function POST(request:NextRequest) {
           답변에서 실제로 나온 단어, 표현을 질문에 직접 인용
           우선순위가 높은 취약점부터 공략
           질문 하나에 핵심 하나만
+          
 
           DON'T
           답변에 없는 내용을 지어내서 질문 
@@ -173,6 +172,7 @@ export async function POST(request:NextRequest) {
     생기부에 실제로 기재된 활동명, 탐구 주제, 과목명을 직접 언급
     학생이 직접 설정한 탐구 질문이나 결론을 기반으로 후속 질문
     하나의 질문에 하나의 핵심만 담기
+    이미 사용한 질문 목록 (절대 중복 금지): ${formData.get("usedQuestions") || "없음"}
 
     DON'T
     생기부에 없는 내용을 지어내거나 유추해서 질문
@@ -198,6 +198,7 @@ export async function POST(request:NextRequest) {
     생기부 PDF를 분석하고 시작하세요.` : 
     `너는 대학 교수야. 
     위 탐구보고서를 읽고 부족한 점과 보완할 질문 5개를 만들어줘.
+    이미 사용한 질문 목록 (절대 중복 금지): ${formData.get("usedQuestions") || "없음"}
     반드시 아래 형식으로만 답해줘:
     1. 질문
     2. 질문
