@@ -221,8 +221,8 @@ const ChatIcon = () => (
             <h1 className="h1">예상 질문 {question.length}개</h1>
             <p className="lede">질문을 읽고 녹음 버튼을 눌러 답해 보세요.</p>
           </div>
-          <button className="btn btn-ghost" onClick={handleGenerate}>
-            <SparkIcon /> 재생성
+          <button className="btn btn-primary" disabled={loading} onClick={handleGenerate}>
+            {loading ? <><span className="spinner" /> 재생성 중…</> : "재생성"}
           </button>
         </div>
 
@@ -240,6 +240,7 @@ const ChatIcon = () => (
               <div className="q-actions">
                 <button
                   className={`rec-btn ${recordingIndex === index ? "recording" : ""}`}
+                  disabled={loading}
                   onClick={() => {
                     if (recordingIndex === index) {
                       stopRecording(q.text, index)
@@ -262,6 +263,9 @@ const ChatIcon = () => (
             </div>
           ))}
         </div>
+          {error && (
+            <p style={{color: "red", marginTop: "12px"}}>{error}</p>
+          )}
           {tailError && (
            <p style={{color: "red", marginTop: "12px"}}>{tailError}</p>
            )}
